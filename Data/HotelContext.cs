@@ -11,5 +11,8 @@ namespace _2106Proj.Data
         }
 
         public DbSet<Payment> Payment { get; set; }
+        public DbSet<ReservationInvoice> ReservationInvoice { get; set; }
+        public DbSet<PostCharge> PostCharge { get; set; }
+        public DbSet<ReceiptItem> ReceiptItem { get; set; }
     }
 }
