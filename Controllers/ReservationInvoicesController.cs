@@ -5,32 +5,34 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using _2106Proj.Data;
 using _2106Proj.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace _2106Proj.Controllers
 {
     public class ReservationInvoicesController : Controller
     {
-        private readonly HotelContext _context;
+        private readonly ReservationInvoiceControl _invoiceControl;
 
-        public ReservationInvoicesController(HotelContext context)
+        public ReservationInvoicesController(ReservationInvoiceControl invoiceControl)
         {
-            _context = context;
+            _invoiceControl = invoiceControl;
         }
 
         // GET: ReservationInvoices
         public async Task<IActionResult> Index(string searchString)
         {
-            var invoices = from i in _context.ReservationInvoice
-                         select i;
-
+            IEnumerable<ReservationInvoice> invoices;
             if (!String.IsNullOrEmpty(searchString))
             {
-                invoices = invoices.Where(s => s.ReservationId.Equals(Int32.Parse(searchString)));
+                invoices = _invoiceControl.getInvoiceByResID(Int32.Parse(searchString));
+            }
+            else
+            {
+                invoices = _invoiceControl.getAllInvoices();
             }
 
-            return View(await invoices.ToListAsync());
+            return View(invoices);
         }
 
         // GET: ReservationInvoices/Details/5
@@ -41,8 +43,8 @@ namespace _2106Proj.Controllers
                 return NotFound();
             }
 
-            var reservationInvoice = await _context.ReservationInvoice
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var reservationInvoice = _invoiceControl.getInvoiceByID(id.Value);
+
             if (reservationInvoice == null)
             {
                 return NotFound();
@@ -58,16 +60,15 @@ namespace _2106Proj.Controllers
         }
 
         // POST: ReservationInvoices/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ReservationId,IssueDate,Id,GuestId,DueDate,PaymentMethod,Amount")] ReservationInvoice reservationInvoice)
-        {
+        public async Task<IActionResult> Create([Bind("ReservationId,IssueDate,Id,GuestId,DueDate,PaymentMethod,Amount")] ReservationInvoice formData)
+        { 
+            var reservationInvoice = _invoiceControl.createNewInvoice(ID: formData.Id, resID: formData.ReservationId, guestID: 
+                formData.GuestId, issue: formData.IssueDate, due: formData.DueDate, method: formData.PaymentMethod, amount: formData.Amount);
+
             if (ModelState.IsValid)
             {
-                _context.Add(reservationInvoice);
-                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(reservationInvoice);
@@ -81,7 +82,7 @@ namespace _2106Proj.Controllers
                 return NotFound();
             }
 
-            var reservationInvoice = await _context.ReservationInvoice.FindAsync(id);
+            var reservationInvoice = _invoiceControl.getInvoiceByID(id.Value);
             if (reservationInvoice == null)
             {
                 return NotFound();
@@ -90,38 +91,21 @@ namespace _2106Proj.Controllers
         }
 
         // POST: ReservationInvoices/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ReservationId,IssueDate,Id,GuestId,DueDate,PaymentMethod,Amount")] ReservationInvoice reservationInvoice)
+        public async Task<IActionResult> Edit(int id, [Bind("ReservationId,IssueDate,Id,GuestId,DueDate,PaymentMethod,Amount")] ReservationInvoice formData)
         {
-            if (id != reservationInvoice.Id)
+            if (id != formData.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(reservationInvoice);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ReservationInvoiceExists(reservationInvoice.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _invoiceControl.updateInvoice(formData);
                 return RedirectToAction(nameof(Index));
             }
-            return View(reservationInvoice);
+            return View(formData);
         }
 
         // GET: ReservationInvoices/Delete/5
@@ -132,8 +116,7 @@ namespace _2106Proj.Controllers
                 return NotFound();
             }
 
-            var reservationInvoice = await _context.ReservationInvoice
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var reservationInvoice = _invoiceControl.getInvoiceByID(id.Value);
             if (reservationInvoice == null)
             {
                 return NotFound();
@@ -147,15 +130,13 @@ namespace _2106Proj.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var reservationInvoice = await _context.ReservationInvoice.FindAsync(id);
-            _context.ReservationInvoice.Remove(reservationInvoice);
-            await _context.SaveChangesAsync();
+            _invoiceControl.deleteInvoice(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ReservationInvoiceExists(int id)
+/*        private bool ReservationInvoiceExists(int id)
         {
             return _context.ReservationInvoice.Any(e => e.Id == id);
-        }
+        }*/
     }
 }

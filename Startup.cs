@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using _2106Proj.Data;
+using _2106Proj.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace _2106Proj
@@ -28,6 +29,9 @@ namespace _2106Proj
             services.AddControllersWithViews();
             services.AddDbContext<HotelContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("HotelContext")));
+            services.AddTransient<ReservationInvoiceGateway>();
+            services.AddTransient<ReservationInvoiceControl>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
