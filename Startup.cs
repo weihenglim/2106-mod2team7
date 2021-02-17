@@ -54,7 +54,7 @@ namespace _2106Proj
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=ReservationInvoices}/{action=Index}/{id?}");
             });
         }
     }

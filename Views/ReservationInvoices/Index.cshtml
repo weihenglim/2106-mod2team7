@@ -4,11 +4,17 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Reservation Invoice List</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form asp-controller="ReservationInvoices" asp-action="Index">
+    <p>
+        Search: <input type="text" name="SearchString" placeholder="Enter Reservation ID"/>
+        <input type="submit" value="Filter"/>
+    </p>
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -52,7 +58,7 @@
                 @Html.DisplayFor(modelItem => item.PaymentMethod)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Amount)
+                $@Html.DisplayFor(modelItem => item.Amount)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

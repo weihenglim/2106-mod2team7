@@ -20,9 +20,17 @@ namespace _2106Proj.Controllers
         }
 
         // GET: ReservationInvoices
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            return View(await _context.ReservationInvoice.ToListAsync());
+            var invoices = from i in _context.ReservationInvoice
+                         select i;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                invoices = invoices.Where(s => s.ReservationId.Equals(Int32.Parse(searchString)));
+            }
+
+            return View(await invoices.ToListAsync());
         }
 
         // GET: ReservationInvoices/Details/5
