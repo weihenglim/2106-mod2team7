@@ -4,7 +4,7 @@ using _2106Proj.Data;
 
 namespace _2106Proj.Models
 {
-    public class ReservationInvoiceControl
+    public class ReservationInvoiceControl : iReservationInvoice
     {
         private readonly ReservationInvoiceGateway _invoiceGateway;
         public ReservationInvoiceControl(ReservationInvoiceGateway invoiceGateway)
@@ -27,7 +27,6 @@ namespace _2106Proj.Models
             return _invoiceGateway.findByID(id);
         }
 
-        // "ReservationId,IssueDate,Id,GuestId,DueDate,PaymentMethod,Amount"
         public ReservationInvoice createNewInvoice(int resID, DateTime issue, int ID, DateTime due, string method, decimal amount, int guestID)
         {
             //TODO: Data validation
